@@ -20,6 +20,7 @@ class Study:
     secrets = os.path.join(os.path.dirname(os.path.realpath(__file__)), "secrets")
     partial_survey = os.path.join(sources, "sept15_partial_survey.xlsx")
     gsheets_credentials = os.path.join(secrets, "credentials.json")
+    sheetid = '1sj_9P_u6sxakhzdEpb1LF-rlMnyHWO0gHWH4tr2j3M4'  # Responses Spreadsheet
     token = os.path.join(secrets, "token.pickle")
     mappings = {
         "Timestamp": "Timestamp",
@@ -108,37 +109,35 @@ class Study:
         :return: The latest study
         :rtype: Study
         """
-        # Pulls data from the entire spreadsheet tab.
-        RANGE_NAME = 'spreadsheet_tab_name!'
 
-        # Pulls data only from the specified range of cells.
-        RANGE_NAME = 'spreadsheet_tab_name!A2:C6'
-
-        SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-        SPREADSHEET_ID = '1sj_9P_u6sxakhzdEpb1LF-rlMnyHWO0gHWH4tr2j3M4'
-        RANGE_NAME = 'Responses!'
-        data = pull_sheet_data(SCOPES, SPREADSHEET_ID, RANGE_NAME)
+        scopes = ['https://www.googleapis.com/auth/spreadsheets']
+        sheetid = cls.sheetid
+        #RANGE_NAME = 'Responses!A:AG'
+        range='Responses'
+        data = pull_sheet_data(scopes, sheetid, range)
         df = pd.DataFrame(data[1:], columns=data[0])
         return cls.from_full_df(df)
 
 
-def pull_sheet_data(SCOPES, SPREADSHEET_ID, RANGE_NAME):
-    creds = gsheet_api_check(SCOPES)
+def pull_sheet_data(scopes, sheetid, range):
+    creds = gsheet_api_check(scopes)
     service = build('sheets', 'v4', credentials=creds)
     sheet = service.spreadsheets()
     result = sheet.values().get(
-        spreadsheetId=SPREADSHEET_ID,
-        range=RANGE_NAME).execute()
+        spreadsheetId=sheetid,
+        range=range
+    ).execute()
     values = result.get('values', [])
     if not values:
         raise ValueError("Please use a valid sheet")
     else:
-        rows = sheet.values().get(spreadsheetId=SPREADSHEET_ID,
-                                  range=RANGE_NAME).execute()
+        rows = sheet.values().get(spreadsheetId=sheetid,
+                                  range=range).execute()
         data = rows.get('values')
         return data
 
-def gsheet_api_check(SCOPES):
+
+def gsheet_api_check(scopes):
     creds = None
     if os.path.exists(Study.token):
         with open(Study.token, 'rb') as token:
@@ -148,7 +147,7 @@ def gsheet_api_check(SCOPES):
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                Study.gsheets_credentials, SCOPES)
+                Study.gsheets_credentials, scopes)
             creds = flow.run_local_server(port=0)
         with open(Study.token, 'wb') as token:
             pickle.dump(creds, token)

@@ -1,12 +1,12 @@
 import unittest
-from cbs_survey.study import study
+from cbs_survey.study import latest_study
 import matplotlib.pyplot as plt
 
 
-class TestReadDataset(unittest.TestCase):
+class ReadDataset(unittest.TestCase):
 
     def test_read(self):
-        plt.hist(study.df["CHA"])
+        plt.hist(latest_study.df["CHA"])
         plt.show()
 
 if __name__ == '__main__':
