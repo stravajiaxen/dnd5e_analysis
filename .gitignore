@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Secrets
+cbs_survey/secrets
+
+# PyCharm Configuration
+.idea/
