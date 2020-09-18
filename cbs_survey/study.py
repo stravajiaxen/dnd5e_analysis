@@ -58,6 +58,8 @@ class Study:
         "Add any additional comments here / tell me about the survey experience :)": "Meta",
     }
 
+    unmappings = {v: k for k, v in mappings.items()}
+
     character_attrs = ['Name', 'Recentness', 'Gender', 'Age', 'Is Dead',
        'Race', 'Classes', 'Subclass', 'Level', 'Not Milestone', 'Alignment',
        'Gen Method', 'Scores Assigned', 'STR', 'DEX', 'CON', 'INT', 'WIS',
